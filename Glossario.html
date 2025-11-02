@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glossário QA - Inglês/Português</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 15px 45px 15px 20px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            transition: border-color 0.3s;
+        }
+
+        #searchInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .term-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .term-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .term-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .term-en {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .category-badge {
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.75em;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .term-pt {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .term-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .term-example {
+            background: #f8f9fa;
+            padding: 12px;
+            border-left: 3px solid #667eea;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #555;
+            font-style: italic;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 15px;
+            color: #666;
+        }
+
+        .no-results-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .glossary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Glossário QA</h1>
+            <p class="subtitle">Termos essenciais de Quality Assurance • Inglês ↔ Português</p>
+        </header>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Buscar termo em inglês ou português...">
+                <span class="search-icon">🔍</span>
+            </div>
+            <div class="filters">
+                <button class="filter-btn active" data-category="all">Todos</button>
+                <button class="filter-btn" data-category="Testing Types">Tipos de Teste</button>
+                <button class="filter-btn" data-category="Methodologies">Metodologias</button>
+                <button class="filter-btn" data-category="Tools & Automation">Ferramentas</button>
+                <button class="filter-btn" data-category="Concepts">Conceitos</button>
+                <button class="filter-btn" data-category="Documentation">Documentação</button>
+            </div>
+        </div>
+
+        <div class="glossary-grid" id="glossaryGrid"></div>
+    </div>
+
+    <script>
+        const glossaryData = [
+            {
+                termEn: "Acceptance Testing",
+                termPt: "Teste de Aceitação",
+                category: "Testing Types",
+                description: "Teste formal conduzido para determinar se um sistema satisfaz seus critérios de aceitação e permitir que o cliente decida se aceita ou não o sistema.",
+                example: "O teste de aceitação do usuário (UAT) foi realizado com 10 usuários finais antes do deploy em produção."
+            },
+            {
+                termEn: "API Testing",
+                termPt: "Teste de API",
+                category: "Testing Types",
+                description: "Teste que valida as interfaces de programação de aplicações (APIs), verificando funcionalidade, confiabilidade, desempenho e segurança.",
+                example: "Utilizamos Postman para automatizar os testes de API REST do microserviço de pagamentos."
+            },
+            {
+                termEn: "Automation Testing",
+                termPt: "Teste Automatizado",
+                category: "Tools & Automation",
+                description: "Uso de ferramentas de software para executar testes pré-escritos em uma aplicação antes de ser liberada para produção.",
+                example: "A equipe implementou testes automatizados usando Selenium para cobrir os fluxos críticos de negócio."
+            },
+            {
+                termEn: "Black Box Testing",
+                termPt: "Teste Caixa Preta",
+                category: "Testing Types",
+                description: "Técnica de teste que examina a funcionalidade de uma aplicação sem conhecer sua estrutura interna ou funcionamento.",
+                example: "No teste caixa preta, validamos apenas as entradas e saídas esperadas do sistema."
+            },
+            {
+                termEn: "Bug",
+                termPt: "Defeito/Bug",
+                category: "Concepts",
+                description: "Erro, falha ou problema em um sistema de software que causa um resultado incorreto ou inesperado.",
+                example: "Foi reportado um bug crítico que impedia usuários de finalizar compras no checkout."
+            },
+            {
+                termEn: "Bug Tracking",
+                termPt: "Rastreamento de Bugs",
+                category: "Tools & Automation",
+                description: "Processo de registrar, monitorar e gerenciar bugs encontrados durante o teste de software.",
+                example: "Utilizamos Jira para o rastreamento de bugs e gestão do ciclo de vida dos defeitos."
+            },
+            {
+                termEn: "Continuous Integration",
+                termPt: "Integração Contínua",
+                category: "Methodologies",
+                description: "Prática de desenvolvimento onde membros da equipe integram seu trabalho frequentemente, geralmente com testes automatizados.",
+                example: "Configuramos um pipeline de integração contínua no Jenkins que executa testes a cada commit."
+            },
+            {
+                termEn: "End-to-End Testing",
+                termPt: "Teste Ponta a Ponta",
+                category: "Testing Types",
+                description: "Teste que valida o fluxo completo de uma aplicação desde o início até o fim, simulando cenários reais de uso.",
+                example: "O teste E2E valida desde o login do usuário até a confirmação final da compra."
+            },
+            {
+                termEn: "Exploratory Testing",
+                termPt: "Teste Exploratório",
+                category: "Testing Types",
+                description: "Abordagem de teste onde o testador explora ativamente o sistema, aprendendo sobre ele e projetando testes simultaneamente.",
+                example: "Dedicamos 2 horas para teste exploratório da nova funcionalidade antes do release."
+            },
+            {
+                termEn: "Functional Testing",
+                termPt: "Teste Funcional",
+                category: "Testing Types",
+                description: "Teste que verifica se cada função do software opera de acordo com os requisitos especificados.",
+                example: "O teste funcional confirmou que todos os campos do formulário validam corretamente os dados."
+            },
+            {
+                termEn: "Integration Testing",
+                termPt: "Teste de Integração",
+                category: "Testing Types",
+                description: "Teste que verifica a integração entre diferentes módulos ou serviços de uma aplicação.",
+                example: "Realizamos testes de integração entre o módulo de pagamento e o sistema de estoque."
+            },
+            {
+                termEn: "Load Testing",
+                termPt: "Teste de Carga",
+                category: "Testing Types",
+                description: "Teste que verifica o comportamento do sistema sob uma quantidade específica de requisições simultâneas.",
+                example: "O teste de carga simulou 10.000 usuários simultâneos para validar a escalabilidade."
+            },
+            {
+                termEn: "Performance Testing",
+                termPt: "Teste de Performance",
+                category: "Testing Types",
+                description: "Teste que avalia a velocidade, responsividade e estabilidade de uma aplicação sob determinada carga de trabalho.",
+                example: "O teste de performance identificou que a página de produtos levava 5 segundos para carregar."
+            },
+            {
+                termEn: "Regression Testing",
+                termPt: "Teste de Regressão",
+                category: "Testing Types",
+                description: "Re-execução de testes para garantir que mudanças no código não introduziram novos defeitos.",
+                example: "Após o hotfix, executamos a suíte de testes de regressão para garantir que nada foi quebrado."
+            },
+            {
+                termEn: "Smoke Testing",
+                termPt: "Teste de Fumaça",
+                category: "Testing Types",
+                description: "Teste preliminar para verificar se as funcionalidades mais importantes de uma build estão funcionando.",
+                example: "O smoke test confirmou que a nova versão pode ser instalada e a aplicação inicia corretamente."
+            },
+            {
+                termEn: "Test Case",
+                termPt: "Caso de Teste",
+                category: "Documentation",
+                description: "Conjunto de condições e variáveis sob as quais um testador determinará se um sistema está funcionando corretamente.",
+                example: "Escrevi 25 casos de teste para cobrir o fluxo de recuperação de senha."
+            },
+            {
+                termEn: "Test Coverage",
+                termPt: "Cobertura de Testes",
+                category: "Concepts",
+                description: "Métrica que indica a proporção do código ou funcionalidades que foram testadas.",
+                example: "Alcançamos 85% de cobertura de testes unitários no módulo de autenticação."
+            },
+            {
+                termEn: "Test Data",
+                termPt: "Dados de Teste",
+                category: "Concepts",
+                description: "Dados criados ou selecionados especificamente para satisfazer as condições de execução de um teste.",
+                example: "Preparamos dados de teste com CPFs válidos e inválidos para testar a validação."
+            },
+            {
+                termEn: "Test Plan",
+                termPt: "Plano de Testes",
+                category: "Documentation",
+                description: "Documento que descreve o escopo, abordagem, recursos e cronograma das atividades de teste.",
+                example: "O plano de testes define 3 sprints para cobertura completa dos requisitos."
+            },
+            {
+                termEn: "Test Scenario",
+                termPt: "Cenário de Teste",
+                category: "Documentation",
+                description: "Descrição de alto nível do que precisa ser testado, representando uma funcionalidade end-to-end.",
+                example: "Cenário: 'Usuário realiza uma compra com sucesso usando cartão de crédito'."
+            },
+            {
+                termEn: "Test Suite",
+                termPt: "Suíte de Testes",
+                category: "Concepts",
+                description: "Coleção de casos de teste agrupados para serem executados juntos.",
+                example: "A suíte de testes de checkout contém 50 casos de teste automatizados."
+            },
+            {
+                termEn: "Unit Testing",
+                termPt: "Teste Unitário",
+                category: "Testing Types",
+                description: "Teste de componentes individuais ou unidades de código de forma isolada.",
+                example: "Desenvolvedores escrevem testes unitários usando JUnit para cada nova função."
+            },
+            {
+                termEn: "User Acceptance Testing",
+                termPt: "Teste de Aceitação do Usuário (UAT)",
+                category: "Testing Types",
+                description: "Teste final realizado por usuários finais para validar se o sistema atende às necessidades de negócio.",
+                example: "O UAT será realizado por 5 usuários-chave do departamento de vendas."
+            },
+            {
+                termEn: "White Box Testing",
+                termPt: "Teste Caixa Branca",
+                category: "Testing Types",
+                description: "Técnica de teste que examina a estrutura interna, design e código de uma aplicação.",
+                example: "No teste caixa branca, analisamos todas as ramificações condicionais do código."
+            },
+            {
+                termEn: "Agile Testing",
+                termPt: "Teste Ágil",
+                category: "Methodologies",
+                description: "Prática de teste que segue os princípios da metodologia ágil, com testes contínuos e colaboração.",
+                example: "Nossa equipe pratica teste ágil com QAs participando desde o planejamento da sprint."
+            },
+            {
+                termEn: "Boundary Testing",
+                termPt: "Teste de Limites",
+                category: "Testing Types",
+                description: "Técnica que testa os valores nos limites das condições de entrada.",
+                example: "Testamos valores no limite: 0, 1, 99, 100 para um campo que aceita 1-100."
+            },
+            {
+                termEn: "Defect Density",
+                termPt: "Densidade de Defeitos",
+                category: "Concepts",
+                description: "Métrica que mede o número de defeitos confirmados em um componente ou sistema por tamanho do módulo.",
+                example: "A densidade de defeitos foi de 0,8 bugs por 1000 linhas de código."
+            },
+            {
+                termEn: "Edge Case",
+                termPt: "Caso Extremo",
+                category: "Concepts",
+                description: "Situação que ocorre apenas em parâmetros extremos ou incomuns de operação.",
+                example: "Testamos o caso extremo de um usuário tentando adicionar 999 itens ao carrinho."
+            },
+            {
+                termEn: "Root Cause Analysis",
+                termPt: "Análise de Causa Raiz",
+                category: "Concepts",
+                description: "Processo de identificar a causa fundamental de um defeito ou problema.",
+                example: "A análise de causa raiz revelou que o bug era causado por uma condição de corrida."
+            },
+            {
+                termEn: "Sanity Testing",
+                termPt: "Teste de Sanidade",
+                category: "Testing Types",
+                description: "Teste superficial para verificar se uma correção específica ou nova funcionalidade funciona conforme esperado.",
+                example: "Fizemos um teste de sanidade rápido para confirmar que o bug crítico foi corrigido."
+            },
+            {
+                termEn: "Security Testing",
+                termPt: "Teste de Segurança",
+                category: "Testing Types",
+                description: "Teste que identifica vulnerabilidades e fraquezas na segurança do sistema.",
+                example: "O teste de segurança identificou uma vulnerabilidade de injeção SQL."
+            },
+            {
+                termEn: "Severity",
+                termPt: "Severidade",
+                category: "Concepts",
+                description: "Grau de impacto que um defeito tem sobre o sistema, geralmente classificado como crítico, alto, médio ou baixo.",
+                example: "Classificamos o bug como severidade alta pois impacta uma funcionalidade importante."
+            },
+            {
+                termEn: "Priority",
+                termPt: "Prioridade",
+                category: "Concepts",
+                description: "Ordem de importância ou urgência na qual um defeito deve ser corrigido.",
+                example: "Bugs de prioridade P0 devem ser corrigidos imediatamente antes do release."
+            },
+            {
+                termEn: "Test Automation Framework",
+                termPt: "Framework de Automação de Testes",
+                category: "Tools & Automation",
+                description: "Conjunto de diretrizes, ferramentas e práticas para criar e executar testes automatizados de forma eficiente.",
+                example: "Implementamos um framework de automação baseado em Selenium e Cucumber."
+            },
+            {
+                termEn: "Traceability Matrix",
+                termPt: "Matriz de Rastreabilidade",
+                category: "Documentation",
+                description: "Documento que mapeia requisitos para casos de teste, garantindo cobertura completa.",
+                example: "A matriz de rastreabilidade mostra que todos os 50 requisitos têm pelo menos um caso de teste."
+            }
+        ];
+
+        let currentFilter = 'all';
+
+        function renderGlossary(terms) {
+            const grid = document.getElementById('glossaryGrid');
+            
+            if (terms.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">🔍</div>
+                        <h2>Nenhum termo encontrado</h2>
+                        <p>Tente ajustar sua busca ou filtro</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = terms.map(term => `
+                <div class="term-card">
+                    <div class="term-header">
+                        <div class="term-en">${term.termEn}</div>
+                        <div class="category-badge">${term.category}</div>
+                    </div>
+                    <div class="term-pt">${term.termPt}</div>
+                    <div class="term-description">${term.description}</div>
+                    <div class="term-example"><strong>Exemplo:</strong> ${term.example}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterTerms() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filtered = glossaryData;
+
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(term => term.category === currentFilter);
+            }
+
+            if (searchTerm) {
+                filtered = filtered.filter(term => 
+                    term.termEn.toLowerCase().includes(searchTerm) ||
+                    term.termPt.toLowerCase().includes(searchTerm) ||
+                    term.description.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            renderGlossary(filtered);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', filterTerms);
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.category;
+                filterTerms();
+            });
+        });
+
+        renderGlossary(glossaryData);
+    </script>
+</body>
+</html>
