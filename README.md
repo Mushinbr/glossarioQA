@@ -1,11 +1,6 @@
-# glossarioQA
-Glossário interativo de termos de QA em Inglês/Português(Br)
-# 📚 Glossário QA - Inglês/Português
+# Glossário interativo de termos de QA em Inglês/Português(Br)
 
 Glossário interativo com termos essenciais de Quality Assurance traduzidos e contextualizados.
-
-## 🌐 Acesse o glossário
-👉 [https://seu-usuario.github.io/glossario-qa/](https://Mushinbr.github.io/glossario-qa/)
 
 ## ✨ Recursos
 - 🔍 Busca em tempo real (PT/EN)
