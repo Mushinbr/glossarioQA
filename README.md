@@ -13,8 +13,3 @@ Glossário interativo com termos essenciais de Quality Assurance traduzidos e co
 - 💡 Exemplos práticos de uso
 - 📱 Design responsivo
 
-## 🛠️ Tecnologias
-HTML5, CSS3, JavaScript vanilla
-
-## 📄 Licença
-MIT License
